@@ -11,6 +11,8 @@ use web_sys::{
     HtmlCollection
 };
 
+mod parser;
+
 #[wasm_bindgen(start)]
 pub fn main() -> Result<(), JsValue> {
     let window = web_sys::window().unwrap();
@@ -26,7 +28,6 @@ pub fn main() -> Result<(), JsValue> {
     //underline_node(&document);
     //strikethrough_node(&document);
     observer(&document).unwrap();
-
 
     Ok(())
 }
@@ -52,8 +53,8 @@ pub fn observer(document: &Document) -> anyhow::Result<(), JsValue> {
                 &observe_element
                     .dyn_ref::<HtmlElement>()
                     .unwrap()
-                    .children()
-                    //.into()
+                    .outer_html()
+                    .into()
             )}
             
             unsafe {web_sys::console::log_1(
@@ -91,11 +92,11 @@ pub fn observer(document: &Document) -> anyhow::Result<(), JsValue> {
                     .unwrap()
                     .dyn_ref::<HtmlElement>()
                     .unwrap()
-                    .inner_html();
+                    .outer_html();
 
             
             unsafe {web_sys::console::log_1(
-                &format!("{:?}", htmlstream::tag_iter(collection)).into()
+                &format!("{:?}", parser::data(&collection)).into()
             )}
         }) as Box<dyn FnMut()>);
     
@@ -145,7 +146,7 @@ pub fn bold_node(document: &Document) -> Element{
         .unwrap()
         .set_onclick(Some(onclick.as_ref().unchecked_ref()));
 
-    onclick.forget(); //FIXME check why this causes memory leaks in rust
+    onclick.forget(); //FIXME check why this causes memory leaks in wasm-bindgen
 
     node.append_child(&foo).unwrap();
     

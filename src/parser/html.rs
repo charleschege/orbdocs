@@ -3,9 +3,11 @@ use htmlstream::{
     HTMLTagState,
     HTMLTag,
 };
+
+//let html_element = "<p>Content <i>now</i> <b>editable</b>too</p>";
+
 //TODO disable the enter key or make it go to the next block
-fn main() {
-    let html_element = "<p>Content <i>now</i> <b>editable</b>too</p>";
+pub fn data(html_element: &str) -> Vec<OrbDocsTag> {
     let mut container = Vec::new();
 
     let check_tag = tag_iter(html_element).take(1).next();
@@ -29,14 +31,6 @@ fn main() {
 
     let mut cursor_state = CursorState::Default;
 
-    #[derive(Debug, Clone)]
-    enum CursorState {
-        Default,
-        UnboundText,
-        Open(OrbDocsTag),
-        SelfClosing,
-        BadTag,
-    }
 
     // Remove the first index as it is an element
     // The fist element will also cause `BadTag` error
@@ -104,7 +98,7 @@ fn main() {
         }
     }
 
-    dbg!(foo);
+    foo
 
 }
 // Create a cursor
@@ -116,7 +110,7 @@ fn main() {
 //Else if self closing tag
 //take next index
 //Current cursor pos in next index
-fn match_tag(tag: HTMLTag)  -> OrbDocsTag{
+pub fn match_tag(tag: HTMLTag)  -> OrbDocsTag {
     if tag.state == HTMLTagState::Text {
         OrbDocsTag::UnboundText(tag.html)
     } else if tag.state == HTMLTagState::Opening {
@@ -131,13 +125,23 @@ fn match_tag(tag: HTMLTag)  -> OrbDocsTag{
     }
 }
 
-struct OrbDocsElement {
+#[derive(Debug, Clone)]
+pub enum CursorState {
+    Default,
+    UnboundText,
+    Open(OrbDocsTag),
+    SelfClosing,
+    BadTag,
+}
+
+
+pub struct OrbDocsElement {
     tag: OrbBlocks,
     content: Vec<OrbDocsTag>
 }
 
 #[derive(Debug, Clone)]
-enum OrbDocsTag {
+pub enum OrbDocsTag {
     Paragraph,
     UnboundText(String),
     OrderedList,
@@ -151,6 +155,6 @@ enum OrbDocsTag {
     BadTag,
 }
 
-enum OrbBlocks {
+pub enum OrbBlocks {
     TextBlocks
 }
