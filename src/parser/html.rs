@@ -82,7 +82,14 @@ pub fn data(html_element: &str) -> Vec<OrbDocsTag> {
                         OrbDocsTag::Bold(_) => OrbDocsTag::Bold(tag.html),
                         OrbDocsTag::Italic(_) => OrbDocsTag::Italic(tag.html),
                         OrbDocsTag::Underline(_) => OrbDocsTag::Underline(tag.html),
-                        _ => OrbDocsTag::Image,
+                        OrbDocsTag::DeletedText(_) => OrbDocsTag::DeletedText(tag.html),
+                        OrbDocsTag::SuperScript(_) => OrbDocsTag::SuperScript(tag.html),
+                        OrbDocsTag::SubScript(_) => OrbDocsTag::SubScript(tag.html),
+                        OrbDocsTag::Heading(_) => OrbDocsTag::Heading(tag.html),
+                        OrbDocsTag::Justify(_) => OrbDocsTag::Justify(tag.html),
+                        OrbDocsTag::Indent(_) => OrbDocsTag::Indent(tag.html),
+                        OrbDocsTag::Svg(_) => OrbDocsTag::Svg(tag.html),
+                        _ => OrbDocsTag::BadTag,
                     };
                     foo.push(data);
                     cursor_state = CursorState::Default;
@@ -118,6 +125,18 @@ pub fn match_tag(tag: HTMLTag)  -> OrbDocsTag {
             "b" => OrbDocsTag::Bold(String::default()),
             "u" => OrbDocsTag::Underline(String::default()),
             "i" => OrbDocsTag::Italic(String::default()),
+            "del" => OrbDocsTag::DeletedText(String::default()),
+            "svg" => OrbDocsTag::Svg(String::default()),
+            "sup" => OrbDocsTag::SuperScript(String::default()),
+            "sub" => OrbDocsTag::SubScript(String::default()),
+            "h1" => OrbDocsTag::Heading(String::default()),
+            "h2" => OrbDocsTag::Heading(String::default()),
+            "h3" => OrbDocsTag::Heading(String::default()),
+            "h4" => OrbDocsTag::Heading(String::default()),
+            "h5" => OrbDocsTag::Heading(String::default()),
+            "h6" => OrbDocsTag::Heading(String::default()),
+            "justify" => OrbDocsTag::Heading(String::default()), //FIXME
+            "indent" => OrbDocsTag::Indent(String::default()), //FIXME
             _ => OrbDocsTag::BadTag,
         }
     }else {
@@ -152,6 +171,13 @@ pub enum OrbDocsTag {
     Bold(String),
     Italic(String),
     Underline(String),
+    DeletedText(String),
+    SuperScript(String),
+    SubScript(String),
+    Heading(String),
+    Justify(String),
+    Indent(String),
+    Svg(String),
     BadTag,
 }
 

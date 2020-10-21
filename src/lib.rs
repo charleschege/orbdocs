@@ -36,11 +36,14 @@ pub fn main() -> Result<(), JsValue> {
 //let js_function = a.as_ref().unchecked_ref();
 
 pub fn editor(document: &Document) -> Element {
-    let val = document.create_element("div").unwrap();
-    val.set_id("editor");
-    val.set_class_name("frow row-around");
+    let editor_section = document.create_element("section").unwrap();
+    let editor_main_div = document.create_element("div").unwrap();
+    editor_main_div.set_id("editor");
+    editor_main_div.set_class_name("frow row-around");
 
-    val
+    editor_section.append_child(&editor_main_div).unwrap();
+
+    editor_section
 }
 
 #[wasm_bindgen(catch)]
@@ -93,7 +96,6 @@ pub fn observer(document: &Document) -> anyhow::Result<(), JsValue> {
                     .dyn_ref::<HtmlElement>()
                     .unwrap()
                     .outer_html();
-
             
             unsafe {web_sys::console::log_1(
                 &format!("{:?}", parser::data(&collection)).into()
@@ -117,7 +119,7 @@ pub fn set_editable(document: &Document) {
     let node = document.get_element_by_id("editor").unwrap();
     //TODO set doc height and background and width
     //TODO Add a node
-    node.set_inner_html("<p>Content <i>now</i> <b>editable</b></p>");
+    node.set_inner_html("<p>Content <del>now</del> <b>editable</b><svg>foooobarrr</svg></p>");
     node
         .dyn_ref::<HtmlElement>()
         .unwrap()
