@@ -4,7 +4,8 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{
     Document, 
-    Element, 
+    Element,
+    HtmlDocument, 
     HtmlElement, 
     MutationObserverInit, 
     MutationObserver,
@@ -19,21 +20,46 @@ pub fn main() -> Result<(), JsValue> {
     let document = window.document().unwrap();
     let body = document.body().unwrap();
     
-    body.append_child(&toolbar(&document))?;
+    body.append_child(&editor_toolbar(&document))?;
     body.append_child(&editor(&document))?;
 
     set_editable(&document);
-    //bold_node(&document);
-    //italic_node(&document);
-    //underline_node(&document);
-    //strikethrough_node(&document);
+    bold_node(&document);
+    italic_node(&document);
+    underline_node(&document);
+    deleted_node(&document);
+    superscript_node(&document);
+    subscript_node(&document);
+    cut_node(&document);
+    undo_node(&document);
+    redo_node(&document);
+    tint_node(&document);
+    image_node(&document);
+    trash_node(&document);
+    scribd_node(&document);
+    clone_node(&document);
+    align_left_node(&document);
+    align_center_node(&document);
+    align_right_node(&document);
+    align_justify_node(&document);
+
     observer(&document).unwrap();
 
     Ok(())
 }
 
-//let a = Closure::wrap(Box::new(move || update_time(&current_time)) as Box<dyn Fn()>);
-//let js_function = a.as_ref().unchecked_ref();
+pub fn editor_toolbar(document: &Document) -> Element {
+    let toolbar = document.create_element("div").unwrap();
+    toolbar.set_class_name("frow row-around");
+    toolbar.set_id("toolbar");
+    
+    let toolbar_container = document.create_element("section").unwrap();
+    toolbar_container.set_class_name("frow row-around");
+
+    toolbar_container.append_child(&toolbar).unwrap();
+
+    toolbar_container
+}
 
 pub fn editor(document: &Document) -> Element {
     let editor_section = document.create_element("section").unwrap();
@@ -96,9 +122,19 @@ pub fn observer(document: &Document) -> anyhow::Result<(), JsValue> {
                     .dyn_ref::<HtmlElement>()
                     .unwrap()
                     .outer_html();
+
+            let mut all_tags = Vec::new();
+
+            for (pos, tag) in htmlstream::tag_iter(&collection) {
+                all_tags.push(tag);
+                /*for (pos, attr) in htmlstream::attr_iter(&tag.attributes) {
+                    println!("    {:?} {:?}", pos, attr);
+                }*/
+            }
             
             unsafe {web_sys::console::log_1(
-                &format!("{:?}", parser::data(&collection)).into()
+                // FIXME::<RESTORE> &format!("{:?}", parser::data(&collection)).into()
+                &format!("{:#?}", all_tags).into()
             )}
         }) as Box<dyn FnMut()>);
     
@@ -119,19 +155,11 @@ pub fn set_editable(document: &Document) {
     let node = document.get_element_by_id("editor").unwrap();
     //TODO set doc height and background and width
     //TODO Add a node
-    node.set_inner_html("<p>Content <del>now</del> <b>editable</b><svg>foooobarrr</svg></p>");
+    node.set_inner_html("<p>Content <del>now</del> <b><i><u>editable</u></i></b><svg>foooobarrr</svg></p>");
     node
         .dyn_ref::<HtmlElement>()
         .unwrap()
         .set_content_editable("true");
-}
-
-pub fn toolbar(document: &Document) -> Element {
-    let val = document.create_element("div").unwrap();
-    val.set_id("toolbar");
-    val.set_class_name("frow row-around");
-
-    val
 }
 
 pub fn bold_node(document: &Document) -> Element{
@@ -139,8 +167,9 @@ pub fn bold_node(document: &Document) -> Element{
     foo.set_class_name("fa fa-bold");
     
     let node = document.get_element_by_id("toolbar").unwrap();
+    
     let onclick = Closure::wrap(
-        Box::new(move || {unsafe {web_sys::console::log_1(&"bold".into())}
+        Box::new(move || {unsafe {web_sys::console::log_1(&"bold".into()) }
         }) as Box<dyn FnMut()>);
 
     node
@@ -176,7 +205,7 @@ pub fn underline_node(document: &Document) -> Element{
     node
 }
 
-pub fn strikethrough_node(document: &Document) -> Element{
+pub fn deleted_node(document: &Document) -> Element{
     let foo = document.create_element("button").unwrap();
     foo.set_class_name("fa fa-strikethrough");
     
@@ -185,7 +214,143 @@ pub fn strikethrough_node(document: &Document) -> Element{
 
     node
 }
+pub fn superscript_node(document: &Document) -> Element{
+    let foo = document.create_element("button").unwrap();
+    foo.set_class_name("fa fa-superscript");
+    
+    let node = document.get_element_by_id("toolbar").unwrap();
+    node.append_child(&foo).unwrap();
 
+    node
+}
+
+pub fn subscript_node(document: &Document) -> Element{
+    let foo = document.create_element("button").unwrap();
+    foo.set_class_name("fa fa-subscript");
+    
+    let node = document.get_element_by_id("toolbar").unwrap();
+    node.append_child(&foo).unwrap();
+
+    node
+}
+pub fn cut_node(document: &Document) -> Element{
+    let foo = document.create_element("button").unwrap();
+    foo.set_class_name("fa fa-cut");
+    
+    let node = document.get_element_by_id("toolbar").unwrap();
+    node.append_child(&foo).unwrap();
+
+    node
+}
+
+pub fn undo_node(document: &Document) -> Element{
+    let foo = document.create_element("button").unwrap();
+    foo.set_class_name("fa fa-undo");
+    
+    let node = document.get_element_by_id("toolbar").unwrap();
+    node.append_child(&foo).unwrap();
+
+    node
+}
+
+pub fn redo_node(document: &Document) -> Element{
+    let foo = document.create_element("button").unwrap();
+    foo.set_class_name("fa fa-redo-alt");
+    
+    let node = document.get_element_by_id("toolbar").unwrap();
+    node.append_child(&foo).unwrap();
+
+    node
+}
+
+pub fn tint_node(document: &Document) -> Element{
+    let foo = document.create_element("button").unwrap();
+    foo.set_class_name("fa fa-tint");
+    
+    let node = document.get_element_by_id("toolbar").unwrap();
+    node.append_child(&foo).unwrap();
+
+    node
+}
+
+pub fn image_node(document: &Document) -> Element{
+    let foo = document.create_element("button").unwrap();
+    foo.set_class_name("fa fa-image");
+    
+    let node = document.get_element_by_id("toolbar").unwrap();
+    node.append_child(&foo).unwrap();
+
+    node
+}
+
+pub fn trash_node(document: &Document) -> Element{
+    let foo = document.create_element("button").unwrap();
+    foo.set_class_name("fa fa-trash");
+    
+    let node = document.get_element_by_id("toolbar").unwrap();
+    node.append_child(&foo).unwrap();
+
+    node
+}
+
+pub fn scribd_node(document: &Document) -> Element{
+    let foo = document.create_element("button").unwrap();
+    foo.set_class_name("fa fa-feather-alt");
+    
+    let node = document.get_element_by_id("toolbar").unwrap();
+    node.append_child(&foo).unwrap();
+
+    node
+}
+
+pub fn clone_node(document: &Document) -> Element{
+    let foo = document.create_element("button").unwrap();
+    foo.set_class_name("fa fa-clone");
+    
+    let node = document.get_element_by_id("toolbar").unwrap();
+    node.append_child(&foo).unwrap();
+
+    node
+}
+
+pub fn align_left_node(document: &Document) -> Element{
+    let foo = document.create_element("button").unwrap();
+    foo.set_class_name("fa fa-align-left");
+    
+    let node = document.get_element_by_id("toolbar").unwrap();
+    node.append_child(&foo).unwrap();
+
+    node
+}
+
+pub fn align_center_node(document: &Document) -> Element{
+    let foo = document.create_element("button").unwrap();
+    foo.set_class_name("fa fa-align-center");
+    
+    let node = document.get_element_by_id("toolbar").unwrap();
+    node.append_child(&foo).unwrap();
+
+    node
+}
+
+pub fn align_right_node(document: &Document) -> Element{
+    let foo = document.create_element("button").unwrap();
+    foo.set_class_name("fa fa-align-center");
+    
+    let node = document.get_element_by_id("toolbar").unwrap();
+    node.append_child(&foo).unwrap();
+
+    node
+}
+pub fn align_justify_node(document: &Document) -> Element{
+    let foo = document.create_element("button").unwrap();
+    foo.set_class_name("fa fa-align-justify");
+    
+    let node = document.get_element_by_id("toolbar").unwrap();
+    node.append_child(&foo).unwrap();
+
+    node
+}
 /*
 
 // And now that our demo is ready to go let's switch things up so
