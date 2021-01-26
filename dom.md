@@ -1,2 +1,0 @@
-- MutationObserver interface provides the ability to watch for changes being made to the DOM tree
-- window.getSelection
