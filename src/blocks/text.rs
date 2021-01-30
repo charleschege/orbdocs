@@ -1,5 +1,6 @@
 use log::trace;
 use mogwai::prelude::*;
+use web_sys::HtmlDocument;
 
 pub enum TextOps {
     Bold,
@@ -38,13 +39,52 @@ impl TextOps {
             match document.get_selection().unwrap() {
                 Some(selection) => {
                     let range = selection.get_range_at(0).unwrap();
-                    range.surround_contents(&bold).unwrap();
+                    let command_state =
+                        TextOps::command_state(document.dyn_ref::<HtmlDocument>().unwrap())
+                            .unwrap();
+
+                    if command_state.bold {
+                        trace!("bold_text_exists");
+                    } else {
+                        range.surround_contents(&bold).unwrap();
+                        trace!("text_bolded");
+                    }
                     enquote::unquote(&format!("{:?}", range.to_string())).unwrap()
                 }
                 None => "NONE".to_string(),
             }
         );
     }
+
+    fn command_state(html_document: &HtmlDocument) -> Result<CommandState, JsValue> {
+        Ok(CommandState {
+            bold: html_document.query_command_state("bold")?,
+            italic: html_document.query_command_state("italic")?,
+            underline: html_document.query_command_state("underline")?,
+            del: html_document.query_command_state("strikethrough")?,
+            subscript: html_document.query_command_state("subscript")?,
+            superscript: html_document.query_command_state("superscript")?,
+        })
+    }
+}
+
+#[derive(Debug)]
+struct CommandState {
+    bold: bool,
+    italic: bool,
+    underline: bool,
+    del: bool,
+    subscript: bool,
+    superscript: bool,
+}
+#[derive(Debug)]
+struct CommandValue {
+    //TODO Document.queryCommandValue
+}
+
+struct Text {
+    content: String,
+    state: CommandState,
 }
 
 pub enum Heading {

@@ -29,7 +29,7 @@ pub fn main(parent_id: Option<String>) -> Result<(), JsValue> {
             <p contenteditable="true" document:selectionchange=tx.contra_map(|_|
                 ()
             )>
-                "Hello x43·spacemachine"
+                <b>"Hello"</b>" x43·spacemachine"
             </p>
         </div>
     });
